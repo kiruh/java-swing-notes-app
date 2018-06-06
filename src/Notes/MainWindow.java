@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Group;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -57,6 +58,7 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jButton4 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
+        jButton5 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -67,7 +69,7 @@ public class MainWindow extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Notes");
 
-        jSplitPane1.setDividerLocation(200);
+        jSplitPane1.setDividerLocation(240);
 
         jPanel1.setPreferredSize(new java.awt.Dimension(200, 360));
 
@@ -92,13 +94,22 @@ public class MainWindow extends javax.swing.JFrame {
             .addGap(0, 468, Short.MAX_VALUE)
         );
 
+        jButton5.setText("Uncheck All");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(68, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton4)
                 .addContainerGap())
         );
@@ -107,7 +118,9 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton4)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton4)
+                    .addComponent(jButton5))
                 .addContainerGap())
         );
 
@@ -154,7 +167,7 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 673, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jButton3)
@@ -196,10 +209,15 @@ public class MainWindow extends javax.swing.JFrame {
         CreateOrUpdateNote form = new CreateOrUpdateNote(this, true);
         form.setLocationRelativeTo(this);
         form.setVisible(true);
-        showAll = true;
-        initTagCheckboxes();
+        reloadTagPanel();
         initNotes();
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void reloadTagPanel() {
+        showAll = true;
+        jButton5.setText("Uncheck All");
+        initTagCheckboxes();
+    }
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         int rowNumber = jTable1.getSelectedRow();
@@ -229,8 +247,7 @@ public class MainWindow extends javax.swing.JFrame {
         CreateOrUpdateNote form = new CreateOrUpdateNote(this, true, note.get());
         form.setLocationRelativeTo(this);
         form.setVisible(true);
-        showAll = true;
-        initTagCheckboxes();
+        reloadTagPanel();
         initNotes();
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -260,6 +277,25 @@ public class MainWindow extends javax.swing.JFrame {
         initNotes();
     }//GEN-LAST:event_jButton4ActionPerformed
 
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        JButton btn = (JButton) evt.getSource();
+        showAll = !showAll;
+        if (showAll) {
+            btn.setText("Uncheck All");
+        } else {
+            btn.setText("Check All");
+        }
+        checkboxes.forEach(checkbox -> {
+            checkbox.setSelected(showAll);
+            if (!showAll) {
+                selectedTags = new ArrayList<>();
+            } else {
+                selectedTags = Tag.fetchTags();
+            }
+        });
+        initNotes();
+    }//GEN-LAST:event_jButton5ActionPerformed
+
     private void onCheckboxClick(ActionEvent evt, Tag tag) {
         JCheckBox checkbox = (JCheckBox) evt.getSource();
         boolean selected = checkbox.isSelected();
@@ -275,18 +311,12 @@ public class MainWindow extends javax.swing.JFrame {
         initNotes();
     }
 
-    private void onShowAllClicl(ActionEvent evt) {
-        JCheckBox checkbox = (JCheckBox) evt.getSource();
-        boolean selected = checkbox.isSelected();
-        showAll = selected;
-        initTagCheckboxes();
-        initNotes();
-    }
-
     private ArrayList<Tag> selectedTags;
+    private ArrayList<JCheckBox> checkboxes;
     private boolean showAll = true;
 
     private void initTagCheckboxes() {
+        checkboxes = new ArrayList<>();
         jPanel3.removeAll();
         GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
 
@@ -298,33 +328,25 @@ public class MainWindow extends javax.swing.JFrame {
             .addContainerGap();
 
         ArrayList<Tag> tags = Tag.fetchTags();
-        selectedTags = new ArrayList<>(tags);
-
-        JCheckBox checkbox = new JCheckBox();
-        checkbox.setText("Show all notes");
-        checkbox.setSelected(showAll);
-        checkbox.addActionListener((java.awt.event.ActionEvent evt) -> {
-            onShowAllClicl(evt);
-        });
-
-        horizontalGroup.addComponent(checkbox);
-        verticalGroup.addComponent(checkbox);
+        selectedTags = new ArrayList<>();
 
         for (int i = 0; i < tags.size(); i++) {
             Tag tag = tags.get(i);
-            checkbox = new JCheckBox();
+            JCheckBox checkbox = new JCheckBox();
             checkbox.setText(tag.value);
-            checkbox.setSelected(true);
-            if (showAll) {
-                checkbox.setEnabled(false);
-            }
+            checkbox.setSelected(showAll);
             checkbox.addActionListener((java.awt.event.ActionEvent evt) -> {
                 onCheckboxClick(evt, tag);
             });
+            if (showAll) {
+                selectedTags.add(tag);
+            }
+            checkboxes.add(checkbox);
 
             horizontalGroup.addComponent(checkbox);
             verticalGroup.addComponent(checkbox);
         }
+
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -353,7 +375,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         for (int i = 0; i < notes.size(); i++) {
             Note note = notes.get(i);
-            if (!showAll) {
+            if (note.getTags().size() > 0) {
                 boolean show = false;
                 for (Tag tag : note.getTags()) {
                     if (selectedTags.contains(tag)) {
@@ -412,13 +434,11 @@ public class MainWindow extends javax.swing.JFrame {
                 frame = new MainWindow();
                 frame.pack();
 
-                // make the frame half the height and width
                 Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
                 int height = screenSize.height < 600 ? screenSize.height : 600;
                 int width = screenSize.width < 1000 ? screenSize.width : 1000;
                 frame.setSize(width, height);
 
-                // here's the part where i center the jframe on screen
                 frame.setLocationRelativeTo(null);
 
                 frame.setVisible(true);
@@ -433,6 +453,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
