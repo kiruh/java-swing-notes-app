@@ -6,12 +6,7 @@
 package Notes;
 
 import java.awt.Frame;
-import java.util.ArrayList;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Group;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 /**
  *
@@ -19,54 +14,28 @@ import javax.swing.JPanel;
  */
 public class CreateOrUpdateNote extends javax.swing.JDialog {
 
+    private Note note;
+
     /**
      * Creates new form CreateNote
      */
     public CreateOrUpdateNote(Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        this.setTitle("Create Note");
     }
 
     public CreateOrUpdateNote(Frame parent, boolean modal, Note note) {
         super(parent, modal);
         initComponents();
+        this.setTitle(note.title);
+        this.note = note;
+        jTextField1.setText(note.title);
+        jTextArea1.setText(note.text);
+        jTextField2.setText(note.getTagString());
+        jLabel3.setText("Created: " + note.createdAt.toString());
     }
 
-//    private void initTags() {
-//        jPanel1.removeAll();
-//
-//        GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-//        Group horizontalGroup = jPanel1Layout.createSequentialGroup()
-//            .addContainerGap();
-//
-//        Group verticalGroup = jPanel1Layout
-//            .createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE);
-//
-//        for (Tag tag : tags) {
-//            TagView tv = new TagView();
-//            tv.tag = tag;
-//            JPanel tvp = tv.getView();
-//
-//            horizontalGroup
-//                .addComponent(tvp)
-//                .addGap(5);
-//
-//            verticalGroup.addComponent(tvp);
-//        }
-//
-//        jPanel1.setLayout(jPanel1Layout);
-//        jPanel1Layout.setHorizontalGroup(
-//            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//                .addGroup(horizontalGroup)
-//        );
-//        jPanel1Layout.setVerticalGroup(
-//            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-//                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-//                    .addGroup(verticalGroup)
-//                    .addContainerGap())
-//        );
-//    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -83,16 +52,18 @@ public class CreateOrUpdateNote extends javax.swing.JDialog {
         jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jTextField1.setToolTipText("Title");
 
-        jTextField2.setToolTipText("");
+        jTextField2.setToolTipText("Comma-separated tags");
 
         jTextArea1.setColumns(20);
+        jTextArea1.setLineWrap(true);
         jTextArea1.setRows(5);
-        jTextArea1.setToolTipText("");
+        jTextArea1.setToolTipText("Note");
         jScrollPane3.setViewportView(jTextArea1);
 
         jButton1.setText("Save");
@@ -106,6 +77,8 @@ public class CreateOrUpdateNote extends javax.swing.JDialog {
 
         jLabel2.setText("Comma-separated tags:");
 
+        jLabel3.setForeground(new java.awt.Color(153, 153, 153));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -116,7 +89,8 @@ public class CreateOrUpdateNote extends javax.swing.JDialog {
                     .addComponent(jTextField2)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 560, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton1))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
@@ -141,7 +115,9 @@ public class CreateOrUpdateNote extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton1)
+                    .addComponent(jLabel3))
                 .addContainerGap())
         );
 
@@ -163,8 +139,12 @@ public class CreateOrUpdateNote extends javax.swing.JDialog {
             );
             return;
         }
-
-        boolean created = Note.createNote(title, text, tags);
+        boolean created = false;
+        if (note == null) {
+            created = Note.createNote(title, text, tags);
+        } else {
+            created = note.update(title, text, tags);
+        }
 
         if (!created) {
             JOptionPane.showMessageDialog(
@@ -225,6 +205,7 @@ public class CreateOrUpdateNote extends javax.swing.JDialog {
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;

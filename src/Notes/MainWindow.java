@@ -9,10 +9,13 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Group;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -20,6 +23,8 @@ import javax.swing.table.DefaultTableModel;
  * @author kirill
  */
 public class MainWindow extends javax.swing.JFrame {
+
+    private ArrayList<Note> notes;
 
     /**
      * Creates new form NewJFrame
@@ -41,6 +46,8 @@ public class MainWindow extends javax.swing.JFrame {
 
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel1 = new javax.swing.JPanel();
+        jButton4 = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -49,25 +56,60 @@ public class MainWindow extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Notes");
 
-        jSplitPane1.setDividerLocation(160);
+        jSplitPane1.setDividerLocation(200);
 
         jPanel1.setPreferredSize(new java.awt.Dimension(200, 360));
+
+        jButton4.setText("Manage Tags");
+        jButton4.setToolTipText("");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        jPanel3.setPreferredSize(new java.awt.Dimension(200, 468));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 468, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 133, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(68, Short.MAX_VALUE)
+                .addComponent(jButton4)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 511, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton4)
+                .addContainerGap())
         );
 
         jSplitPane1.setLeftComponent(jPanel1);
 
         jButton1.setText("Delete Note");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jScrollPane1.setBorder(null);
 
@@ -151,13 +193,63 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        CreateOrUpdateNote form = new CreateOrUpdateNote(this, true);
+        int rowNumber = jTable1.getSelectedRow();
+        if (rowNumber == -1) {
+            JOptionPane.showMessageDialog(
+                null,
+                "Select note!",
+                "Info",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            return;
+        }
+        int id = (int) jTable1.getModel().getValueAt(rowNumber, 0);
+
+        List<Note> nts = notes;
+        Optional<Note> note = nts.stream().filter(n -> n.id == id).findFirst();
+
+        if (!note.isPresent()) {
+            JOptionPane.showMessageDialog(
+                null,
+                "Something went wrong!",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        CreateOrUpdateNote form = new CreateOrUpdateNote(this, true, note.get());
         form.setLocationRelativeTo(this);
         form.setVisible(true);
         showAll = true;
         initTagCheckboxes();
         initNotes();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        int[] selectedRows = jTable1.getSelectedRows();
+        if (selectedRows.length == 0) {
+            JOptionPane.showMessageDialog(
+                null,
+                "Select at least one note!",
+                "Info",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            return;
+        }
+        for (int selectedRow : selectedRows) {
+            int id = (int) jTable1.getModel().getValueAt(selectedRow, 0);
+            Note.deleteById(id);
+        }
+        initNotes();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        ManageTagsForm form = new ManageTagsForm(this, true);
+        form.setLocationRelativeTo(this);
+        form.setVisible(true);
+        initTagCheckboxes();
+        initNotes();
+    }//GEN-LAST:event_jButton4ActionPerformed
 
     private void onCheckboxClick(ActionEvent evt, Tag tag) {
         JCheckBox checkbox = (JCheckBox) evt.getSource();
@@ -186,13 +278,13 @@ public class MainWindow extends javax.swing.JFrame {
     private boolean showAll = true;
 
     private void initTagCheckboxes() {
-        jPanel1.removeAll();
-        GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel3.removeAll();
+        GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
 
-        Group horizontalGroup = jPanel1Layout
+        Group horizontalGroup = jPanel3Layout
             .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING);
 
-        Group verticalGroup = jPanel1Layout
+        Group verticalGroup = jPanel3Layout
             .createSequentialGroup()
             .addContainerGap();
 
@@ -224,25 +316,31 @@ public class MainWindow extends javax.swing.JFrame {
             horizontalGroup.addComponent(checkbox);
             verticalGroup.addComponent(checkbox);
         }
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel3Layout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(horizontalGroup)
                     .addContainerGap(46, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(verticalGroup));
     }
 
     private void initNotes() {
-        ArrayList<Note> notes = Note.fetchNotes();
+        notes = Note.fetchNotes();
 
         DefaultTableModel tableModel = new DefaultTableModel(
-            new String[]{"Title", "Tags", "Last updated"}, 0
-        );
+            new String[]{"Id", "Title", "Tags", "Last updated"}, 0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column
+            ) {
+                return false;
+            }
+        };
 
         for (int i = 0; i < notes.size(); i++) {
             Note note = notes.get(i);
@@ -259,15 +357,18 @@ public class MainWindow extends javax.swing.JFrame {
                 }
             }
 
-            Object[] row = new Object[3];
-            row[0] = note.title;
-            row[1] = note.getTagString();
-            row[2] = note.updatedAt;
+            Object[] row = new Object[4];
+            row[0] = note.id;
+            row[1] = note.title;
+            row[2] = note.getTagString();
+            row[3] = Note.dateFormat.format(note.updatedAt);
 
             tableModel.addRow(row);
         }
 
         jTable1.setModel(tableModel);
+        jTable1.getColumnModel().getColumn(0).setMinWidth(0);
+        jTable1.getColumnModel().getColumn(0).setMaxWidth(0);
     }
 
     /**
@@ -317,8 +418,10 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTable jTable1;

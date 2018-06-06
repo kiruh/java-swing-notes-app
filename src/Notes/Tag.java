@@ -11,6 +11,32 @@ import java.util.List;
 
 public class Tag {
 
+    static boolean deleteById(int id) {
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
+            String query = "DELETE FROM Tag "
+                + " WHERE id = ?";
+
+            PreparedStatement pst = conn.prepareStatement(query);
+            pst.setInt(1, id);
+
+            pst.execute();
+
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return false;
+    }
+
     public int id;
     public String value;
 
@@ -81,6 +107,29 @@ public class Tag {
             String query = "INSERT INTO Tag (value) VALUES (?)";
             PreparedStatement pst = conn.prepareStatement(query);
             pst.setString(1, value);
+
+            pst.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    public void update(String value) {
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
+            String query = "UPDATE Tag SET value = ? "
+                + " WHERE id = ?";
+            PreparedStatement pst = conn.prepareStatement(query);
+            pst.setString(1, value.trim().replaceAll(",", " ").replaceAll("\\s+", " "));
+            pst.setInt(2, id);
 
             pst.execute();
         } catch (SQLException e) {
