@@ -6,11 +6,16 @@
 package Notes;
 
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Group;
 import javax.swing.JCheckBox;
@@ -28,11 +33,15 @@ public class MainWindow extends javax.swing.JFrame {
 
     /**
      * Creates new form NewJFrame
+     *
+     * @throws java.io.IOException
      */
-    public MainWindow() {
+    public MainWindow() throws IOException {
         initComponents();
         initTagCheckboxes();
         initNotes();
+        Image i = ImageIO.read(getClass().getResource("/notes.png"));
+        setIconImage(i);
     }
 
     /**
@@ -398,19 +407,24 @@ public class MainWindow extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            JFrame frame = new MainWindow();
-            frame.pack();
+            JFrame frame;
+            try {
+                frame = new MainWindow();
+                frame.pack();
 
-            // make the frame half the height and width
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            int height = screenSize.height < 600 ? screenSize.height : 600;
-            int width = screenSize.width < 1000 ? screenSize.width : 1000;
-            frame.setSize(width, height);
+                // make the frame half the height and width
+                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                int height = screenSize.height < 600 ? screenSize.height : 600;
+                int width = screenSize.width < 1000 ? screenSize.width : 1000;
+                frame.setSize(width, height);
 
-            // here's the part where i center the jframe on screen
-            frame.setLocationRelativeTo(null);
+                // here's the part where i center the jframe on screen
+                frame.setLocationRelativeTo(null);
 
-            frame.setVisible(true);
+                frame.setVisible(true);
+            } catch (IOException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
     }
 

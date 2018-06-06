@@ -33,7 +33,7 @@ public class CreateOrUpdateNote extends javax.swing.JDialog {
         jTextField1.setText(note.title);
         jTextArea1.setText(note.text);
         jTextField2.setText(note.getTagString());
-        jLabel3.setText("Created: " + note.createdAt.toString());
+        jLabel3.setText("Created: " + Note.dateFormat.format(note.createdAt));
     }
 
     /**
