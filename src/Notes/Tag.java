@@ -5,6 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 public class Tag {
 
@@ -54,5 +57,41 @@ public class Tag {
             return true;
         }
         return false;
+    }
+
+    public static void createNonexistentTags(String[] tagNames) {
+        List<Tag> existingTags = Tag.fetchTags();
+        for (String tagName : tagNames) {
+            boolean exists = existingTags
+                .stream()
+                .anyMatch(tag -> tag.value.equals(tagName));
+
+            if (!exists) {
+                Tag tag = new Tag();
+                tag.value = tagName;
+                tag.save();
+            }
+        }
+    }
+
+    public void save() {
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
+            String query = "INSERT INTO Tag (value) VALUES (?)";
+            PreparedStatement pst = conn.prepareStatement(query);
+            pst.setString(1, value);
+
+            pst.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 }

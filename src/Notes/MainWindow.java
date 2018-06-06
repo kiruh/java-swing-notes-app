@@ -84,7 +84,13 @@ public class MainWindow extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        jButton2.setText("Edit Note");
+        jButton2.setText("Open Note");
+        jButton2.setToolTipText("");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Add note");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -136,12 +142,22 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        System.out.println("Notes.MainWindow.jButton3ActionPerformed()");
-        CreateNote form = new CreateNote(this, true);
+        CreateOrUpdateNote form = new CreateOrUpdateNote(this, true);
         form.setLocationRelativeTo(this);
         form.setVisible(true);
-        System.out.println("Closed!");
+        showAll = true;
+        initTagCheckboxes();
+        initNotes();
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        CreateOrUpdateNote form = new CreateOrUpdateNote(this, true);
+        form.setLocationRelativeTo(this);
+        form.setVisible(true);
+        showAll = true;
+        initTagCheckboxes();
+        initNotes();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void onCheckboxClick(ActionEvent evt, Tag tag) {
         JCheckBox checkbox = (JCheckBox) evt.getSource();
@@ -174,11 +190,11 @@ public class MainWindow extends javax.swing.JFrame {
         GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
 
         Group horizontalGroup = jPanel1Layout
-                .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING);
+            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING);
 
         Group verticalGroup = jPanel1Layout
-                .createSequentialGroup()
-                .addContainerGap();
+            .createSequentialGroup()
+            .addContainerGap();
 
         ArrayList<Tag> tags = Tag.fetchTags();
         selectedTags = new ArrayList<>(tags);
@@ -210,35 +226,37 @@ public class MainWindow extends javax.swing.JFrame {
         }
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(horizontalGroup)
-                                .addContainerGap(46, Short.MAX_VALUE))
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(horizontalGroup)
+                    .addContainerGap(46, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
-                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(verticalGroup));
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(verticalGroup));
     }
 
     private void initNotes() {
         ArrayList<Note> notes = Note.fetchNotes();
 
         DefaultTableModel tableModel = new DefaultTableModel(
-                new String[]{"Title", "Tags", "Last updated"}, 0
+            new String[]{"Title", "Tags", "Last updated"}, 0
         );
 
         for (int i = 0; i < notes.size(); i++) {
             Note note = notes.get(i);
-            boolean show = false;
-            for (Tag tag : note.getTags()) {
-                if (selectedTags.contains(tag)) {
-                    show = true;
-                    break;
+            if (!showAll) {
+                boolean show = false;
+                for (Tag tag : note.getTags()) {
+                    if (selectedTags.contains(tag)) {
+                        show = true;
+                        break;
+                    }
                 }
-            }
-            if (!show) {
-                continue;
+                if (!show) {
+                    continue;
+                }
             }
 
             Object[] row = new Object[3];
@@ -280,16 +298,16 @@ public class MainWindow extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             JFrame frame = new MainWindow();
-//            frame.pack();
-//
-//            // make the frame half the height and width
-//            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-//            int height = screenSize.height;
-//            int width = screenSize.width;
-//            frame.setSize(width / 2, height / 2);
-//
-//            // here's the part where i center the jframe on screen
-//            frame.setLocationRelativeTo(null);
+            frame.pack();
+
+            // make the frame half the height and width
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int height = screenSize.height < 600 ? screenSize.height : 600;
+            int width = screenSize.width < 1000 ? screenSize.width : 1000;
+            frame.setSize(width, height);
+
+            // here's the part where i center the jframe on screen
+            frame.setLocationRelativeTo(null);
 
             frame.setVisible(true);
         });
